@@ -108,7 +108,7 @@ const document = ({ files, pagination }: ImageProvider) => `
     </nav>
     <hr style="margin-top: 1.2rem; margin-bottom: 1.2rem;" />
     <main>
-      <div style="display:flex;flex-wrap:wrap;>
+      <div style="display:flex;flex-wrap:wrap;">
         ${pagination.files
           .map((file) => {
             return `<img src="${SITE_BASEURL}/${file}" alt="" style="max-width:20%;"></img>`;
@@ -118,13 +118,14 @@ const document = ({ files, pagination }: ImageProvider) => `
       <span style="margin-top:1rem;display:inline-block;">
         ${
           pagination.prev
-            ? `<a href="${SITE_BASEURL}?page=${pagination.prev}" style="margin-right:.7rem;"><- 前 (Prev)</a>`
+            ? `<a href="${SITE_BASEURL}?page=${pagination.prev}" style="margin-right:.7rem;"><- 前のページ</a>`
             : ``
-        } ${
-  pagination.next
-    ? `<a href="${SITE_BASEURL}?page=${pagination.next}">次 (Next) -></a>`
-    : ``
-}
+        } 
+        ${
+          pagination.next
+            ? `<a href="${SITE_BASEURL}?page=${pagination.next}">次のページ -></a>`
+            : ``
+        }
       </span>
     </main>
     <hr style="margin-top: 1.2rem" />
@@ -141,16 +142,20 @@ const document = ({ files, pagination }: ImageProvider) => `
       <span>© iamtakagi.net</span>
     </footer>
   </body>
-  </body>
 </html>
 `;
 
-app.use(express.static(path.join(__dirname, "static"), {
-  setHeaders: function(res, path) {
-    res.setHeader("Cache-Control", "max-age=86400, public, stale-while-revalidate");
-    res.setHeader("Content-DPR", "2.0");
-  }
-}));
+app.use(
+  express.static(path.join(__dirname, "static"), {
+    setHeaders: function (res, path) {
+      res.setHeader(
+        "Cache-Control",
+        "max-age=86400, public, stale-while-revalidate"
+      );
+      res.setHeader("Content-DPR", "2.0");
+    },
+  })
+);
 
 const port = process.env.PORT || 3000;
 app.listen(port);
