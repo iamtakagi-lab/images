@@ -51,7 +51,6 @@ app.get("/", (req, res, next) => {
   };
   const provider = { files, pagination };
   res.setHeader("Content-Type", "text/html");
-  //res.setHeader("Cache-Control", "max-age=86400, public, stale-while-revalidate");
   res.setHeader("Content-DPR", "2.0");
   res.send(document(provider));
 });
@@ -146,7 +145,12 @@ const document = ({ files, pagination }: ImageProvider) => `
 </html>
 `;
 
-app.use(express.static(path.join(__dirname, "static")));
+app.use(express.static(path.join(__dirname, "static"), {
+  setHeaders: function(res, path) {
+    res.setHeader("Cache-Control", "max-age=86400, public, stale-while-revalidate");
+    res.setHeader("Content-DPR", "2.0");
+  }
+}));
 
 const port = process.env.PORT || 3000;
 app.listen(port);
