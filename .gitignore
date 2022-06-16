@@ -1,3 +1,10 @@
 node_modules
 .env
+static/*.gif
+static/*.jpeg
+static/*.jpg
+static/*.tiff
+static/*.png
+static/*.webp
+static/*.bmp
 .DS_Store
