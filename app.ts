@@ -146,7 +146,7 @@ const document = ({ files, pagination }: ImageProvider) => `
 </html>
 `;
 
-app.use(express.static(path.join(__dirname, "images")));
+app.use(express.static(path.join(__dirname, "static")));
 
 const port = process.env.PORT || 3000;
 app.listen(port);
