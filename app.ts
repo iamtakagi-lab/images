@@ -34,7 +34,7 @@ app.get("/", (req, res, next) => {
   const { page } = req.query;
 
   const files = fs
-    .readdirSync(path.join(__dirname, "images"))
+    .readdirSync(path.join(__dirname, "static"))
     .filter((file) => /\.(gif|jpe?g|tiff?|png|webp|bmp)$/i.test(file));
 
   const index = page && typeof page === "string" ? parseInt(page) : 1;
