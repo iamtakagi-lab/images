@@ -3,6 +3,7 @@ name: CI
 on:
   push:
     paths-ignore:
+      - 'docker-compose.yml'
       - '*.md'
       - 'LICENSE'
 

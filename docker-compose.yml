@@ -7,7 +7,7 @@ services:
       context: .
       dockerfile: Dockerfile
     volumes:
-      - ./images:/app/static
+      - ./static:/app/static
     env_file:
       - .env
     environment:
