@@ -1,5 +1,5 @@
 # images
-画像を静的配信するだけのサーバー
+画像配信サービス
 
 ## LICENSE
 MIT License.
