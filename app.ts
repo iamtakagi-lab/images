@@ -242,7 +242,7 @@ const mainDocument = ({ files, pagination }: ImageProvider) => `
     <title>images.iamtakagi.net</title>
     <meta
       property="description"
-      content="画像配信サービス"
+      content="画像配信サーバ"
     />
     <meta
       property="og:title"
@@ -250,7 +250,7 @@ const mainDocument = ({ files, pagination }: ImageProvider) => `
     />
     <meta
       property="og:description"
-      content="画像配信サービス"
+      content="画像配信サーバ"
     />
     <style>
       h1 {
@@ -355,7 +355,7 @@ const mainDocument = ({ files, pagination }: ImageProvider) => `
   <body>
     <nav style="display:flex;flex-direction:column;">
       <section style="margin-bottom:1rem;">
-        <h1 style="margin:0;">画像配信サービス</h1>
+        <h1 style="margin:0;">画像配信サーバ</h1>
         <p style="margin:0;">画像置き場(?)</p>
       </section>
       <span>画像ファイル数: ${files.length}</span>
@@ -436,11 +436,11 @@ const uploadDocument = (files: string[]) => `
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>images.iamtakagi.net / 画像ファイルをアップロードする</title>
-    <meta property="description" content="画像配信サービス" />
+    <meta property="description" content="画像配信サーバ" />
     <meta property="og:title" content="images.iamtakagi.net / 画像ファイルをアップロードする" />
     <meta
       property="og:description"
-      content="画像配信サービス"
+      content="画像配信サーバ"
     />
     <style>
       h1 {
@@ -550,7 +550,7 @@ const uploadDocument = (files: string[]) => `
   <body>
     <nav style="display: flex; flex-direction: column">
       <section style="margin-bottom: 1rem">
-        <h1 style="margin: 0">画像配信サービス</h1>
+        <h1 style="margin: 0">画像配信サーバ</h1>
         <p style="margin: 0">画像置き場(?)</p>
       </section>
       <span>画像ファイル数: ${files.length}</span>
@@ -710,11 +710,11 @@ const deleteDocument = ({ files, pagination }: ImageProvider) => `
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>images.iamtakagi.net / 画像ファイルを削除する</title>
-  <meta property="description" content="画像配信サービス" />
+  <meta property="description" content="画像配信サーバ" />
   <meta property="og:title" content="images.iamtakagi.net / 画像ファイルを削除する" />
   <meta
     property="og:description"
-    content="画像配信サービス"
+    content="画像配信サーバ"
   />
     <style>
       h1 {
@@ -819,7 +819,7 @@ const deleteDocument = ({ files, pagination }: ImageProvider) => `
   <body>
     <nav style="display:flex;flex-direction:column;">
       <section style="margin-bottom:1rem;">
-        <h1 style="margin:0;">画像配信サービス</h1>
+        <h1 style="margin:0;">画像配信サーバ</h1>
         <p style="margin:0;">画像置き場(?)</p>
       </section>
       <span>画像ファイル数: ${files.length}</span>
