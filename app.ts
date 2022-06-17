@@ -356,7 +356,7 @@ const mainDocument = ({ files, pagination }: ImageProvider) => `
     <nav style="display:flex;flex-direction:column;">
       <section style="margin-bottom:1rem;">
         <h1 style="margin:0;">画像配信サーバ</h1>
-        <p style="margin:0;">画像置き場(?)</p>
+        <p style="margin:0;">画像置き場 (?)</p>
       </section>
       <span>画像ファイル数: ${files.length}</span>
       <a href="/upload">画像ファイルをアップロードする (管理者用)</a>
@@ -551,7 +551,7 @@ const uploadDocument = (files: string[]) => `
     <nav style="display: flex; flex-direction: column">
       <section style="margin-bottom: 1rem">
         <h1 style="margin: 0">画像配信サーバ</h1>
-        <p style="margin: 0">画像置き場(?)</p>
+        <p style="margin: 0">画像置き場 (?)</p>
       </section>
       <span>画像ファイル数: ${files.length}</span>
       <a href="/upload">画像ファイルをアップロードする (管理者用)</a>
@@ -820,7 +820,7 @@ const deleteDocument = ({ files, pagination }: ImageProvider) => `
     <nav style="display:flex;flex-direction:column;">
       <section style="margin-bottom:1rem;">
         <h1 style="margin:0;">画像配信サーバ</h1>
-        <p style="margin:0;">画像置き場(?)</p>
+        <p style="margin:0;">画像置き場 (?)</p>
       </section>
       <span>画像ファイル数: ${files.length}</span>
       <a href="/upload">画像ファイルをアップロードする (管理者用)</a>
