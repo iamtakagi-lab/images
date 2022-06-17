@@ -1,8 +1,8 @@
 require("dotenv").config();
 
 if (!process.env.SITE_BASEURL) throw new Error("SITE_BASEURL is not set");
-if (!process.env.AUTH_USER) throw new Error("AUTH_USER is not set");
-if (!process.env.AUTH_PASS) throw new Error("AUTH_PASS is not set");
+if (!process.env.ADMIN_USER) throw new Error("ADMIN_USER is not set");
+if (!process.env.ADMIN_PASS) throw new Error("ADMIN_PASS is not set");
 
 process.env.TZ = "Asia/Tokyo";
 
@@ -114,14 +114,14 @@ const upload = multer({
   },
 }).array("images", 4);
 
-const AUTH_USER = process.env.AUTH_USER;
-const AUTH_PASS = process.env.AUTH_PASS;
+const ADMIN_USER = process.env.ADMIN_USER;
+const ADMIN_PASS = process.env.ADMIN_PASS;
 
 function checkAuth(user: string, pass: string) {
   let valid = true;
 
-  valid = compare(user, AUTH_USER) && valid;
-  valid = compare(pass, AUTH_PASS) && valid;
+  valid = compare(user, ADMIN_USER) && valid;
+  valid = compare(pass, ADMIN_PASS) && valid;
 
   return valid;
 }
