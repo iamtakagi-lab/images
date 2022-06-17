@@ -8,4 +8,5 @@ static/*.tiff
 static/*.png
 static/*.webp
 static/*.bmp
+static/*.svg
 .DS_Store

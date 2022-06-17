@@ -48,7 +48,7 @@ function paginate(array: string[], size: number, index: number) {
 function readSyncImageFiles() {
   return fs
     .readdirSync(path.join(__dirname, "static"))
-    .filter((fileName) => /\.(gif|jpe?g|tiff?|png|webp|bmp)$/i.test(fileName))
+    .filter((fileName) => /\.(gif|jpe?g|tiff?|png|webp|bmp|svg)$/i.test(fileName))
     .map(fileName => ({
       fileName,
       time: fs.statSync(path.join(__dirname, "static", fileName)).mtime.getTime(),
@@ -96,7 +96,7 @@ const storage = multer.diskStorage({
 });
 const upload = multer({
   storage,
-  limits: { fileSize: 2 * 1024 * 1024 },
+  limits: { fileSize: 4 * 1024 * 1024 }, // 4MB
   fileFilter: (req, file, cb) => {
     if (
       file.mimetype === "image/png" ||
@@ -105,13 +105,14 @@ const upload = multer({
       file.mimetype === "image/gif" ||
       file.mimetype === "image/webp" ||
       file.mimetype === "image/bmp" ||
-      file.mimetype === "image/tiff"
+      file.mimetype === "image/tiff" ||
+      file.mimetype === "image/svg+xml"
     ) {
       cb(null, true);
     } else {
       cb(null, false);
       const err = new Error(
-        "サポートされているファイル形式: .png .jpg .jpeg .gif .webp .bmp .tiff"
+        "サポートされているファイル形式: .png .jpg .jpeg .gif .webp .bmp .tiff .svg"
       );
       err.name = "ExtensionError";
       return cb(err);
@@ -572,7 +573,7 @@ const uploadDocument = (files: string[]) => `
             name="images"
             id="file"
           />
-          <span>サポートされているファイル形式: .png .jpg .jpeg .gif .webp .bmp .tiff</span>
+          <span>サポートされているファイル形式: .png .jpg .jpeg .gif .webp .bmp .tiff .svg</span>
           <button id="clear" type="button">クリア</button>
           <button type="submit">アップロード</button>
         </form>
