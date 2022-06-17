@@ -193,7 +193,7 @@ app.get("/delete", (req, res, next) => {
   res.setHeader("Content-Type", "text/html");
   res.setHeader("Content-DPR", "2.0");
   res.send(deleteDocument(provider));
-})
+});
 
 app.delete("/delete", (req, res, next) => {
   const credentials = auth(req);
@@ -207,14 +207,14 @@ app.delete("/delete", (req, res, next) => {
     return;
   }
 
-  const { filename } = req.query;
+  const { fileName } = req.query;
 
-  if(!filename || typeof filename !== "string") return next();
+  if (!fileName || typeof fileName !== "string") return next();
 
-  fs.unlinkSync(path.join(__dirname, "static", filename));
+  fs.unlinkSync(path.join(__dirname, "static", fileName));
   res.status(204); // >> 論理削除なら200、物理削除なら204でいけそうです by https://qiita.com/mfykmn/items/02a0b5448228e0b248b3
   res.end();
-})
+});
 
 app.use(
   express.static(path.join(__dirname, "static"), {
@@ -227,212 +227,6 @@ app.use(
     },
   })
 );
-
-const deleteDocument = ({ files, pagination }: ImageProvider) => `
-<!DOCTYPE html>
-<html lang="ja">
-  <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>images.iamtakagi.net / 画像を削除</title>
-  <meta property="description" content="画像を静的配信するだけのサーバー" />
-  <meta property="og:title" content="images.iamtakagi.net / 画像を削除" />
-  <meta
-    property="og:description"
-    content="画像を静的配信するだけのサーバー"
-  />
-    <style>
-      h1 {
-        font-size: 1.3rem;
-      }
-      h2 {
-        font-size: 1.2rem;
-      }
-      h3 {
-        font-size: 1.1rem;
-      }
-      table {
-        border-collapse: collapse;
-      }
-      table,
-      th,
-      td {
-        border: 1px solid gray;
-      }
-      th,
-      td {
-        padding: 8px;
-      }
-      
-      img {
-        max-width:20%;
-        cursor:pointer;
-        transition:0.3s;
-      }
-      
-      img:hover {opacity: 0.7;}
-      
-      .modal {
-        display: none; /* Hidden by default */
-        position: fixed; /* Stay in place */
-        z-index: 1; /* Sit on top */
-        padding-top: 100px; /* Location of the box */
-        left: 0;
-        top: 0;
-        width: 100%; /* Full width */
-        height: 100%; /* Full height */
-        overflow: auto; /* Enable scroll if needed */
-        background-color: rgb(0,0,0); /* Fallback color */
-        background-color: rgba(0,0,0,0.9); /* Black w/ opacity */
-      }
-      
-      .modal-content {
-        margin: auto;
-        display: block;
-        width: 80%;
-        max-width: 700px;
-      }
-      
-      #caption {
-        margin: auto;
-        display: block;
-        width: 80%;
-        max-width: 700px;
-        text-align: center;
-        color: #ccc;
-        padding: 10px 0;
-        height: 150px;
-      }
-      
-      /* Add Animation - Zoom in the Modal */
-      .modal-content, #caption {
-        animation-name: zoom;
-        animation-duration: 0.6s;
-      }
-      
-      @keyframes zoom {
-        from {transform:scale(0)}
-        to {transform:scale(1)}
-      }
-      
-      /* The Close Button */
-      .close {
-        position: absolute;
-        top: 15px;
-        right: 35px;
-        color: #f1f1f1;
-        font-size: 40px;
-        font-weight: bold;
-        transition: 0.3s;
-      }
-      
-      .close:hover,
-      .close:focus {
-        color: #bbb;
-        text-decoration: none;
-        cursor: pointer;
-      }
-      
-      /* 100% Image Width on Smaller Screens */
-      @media only screen and (max-width: 700px){
-        .modal-content {
-          width: 100%;
-        }
-      }
-    </style>
-  </head>
-  <body>
-    <nav style="display:flex;flex-direction:column;">
-      <section style="margin-bottom:1rem;">
-        <h1 style="margin:0;">画像を静的配信するだけのサーバー</h1>
-        <p style="margin:0;">画像置き場(?)</p>
-      </section>
-      <span>画像ファイル数: ${files.length}</span>
-      <a href="/upload">画像ファイルをアップロードする (管理者用)</a>
-      <a href="/delete">画像ファイルを削除する (管理者用)</a>
-    </nav>
-    <hr style="margin-top: 1.2rem; margin-bottom: 1.2rem;" />
-    <main>
-      <section>
-        <h2>画像ファイルを削除する (管理者用)</h2>
-        <p>削除したい画像をクリックしてください</p>
-        <div style="display:flex;flex-wrap:wrap;">
-          ${pagination.files
-            .map((file) => {
-              return `<img src="${SITE_BASEURL}/${file}" alt="${file}"></img>`;
-            })
-            .join("")}
-        </div>
-        <span style="margin-top:1rem;display:inline-block;">
-        ${
-          pagination.prev
-            ? `<a href="${SITE_BASEURL}?page=${pagination.prev}" style="margin-right:.7rem;"><- 前のページ</a>`
-            : ``
-        } 
-        ${
-          pagination.next
-            ? `<a href="${SITE_BASEURL}?page=${pagination.next}">次のページ -></a>`
-            : ``
-        }
-      </span>
-      </section>
-      <div id="modal" class="modal">
-        <span class="close">&times;</span>
-        <img class="modal-content" id="modal-img">
-        <div id="caption"></div>
-      </div>
-    </main>
-    <hr style="margin-top: 1.2rem" />
-    <footer style="display: flex; flex-direction: column;">
-      <span>
-        GitHub:
-        <a href="https://github.com/iamtakagi/images">
-          https://github.com/iamtakagi/images
-        </a>
-      </span>
-      <span>
-        Author: <a href="https://github.com/iamtakagi">iamtakagi</a>
-      </span>
-      <span>© iamtakagi.net</span>
-    </footer>
-    <script>
-    (() => {
-      Array.from(document.getElementsByTagName("img")).map((img) => {
-        img.onclick = function () {
-          const modal = document.getElementById("modal");
-          const modalImg = document.getElementById("modal-img");
-          const captionText = document.getElementById("caption");
-          
-          modal.style.display = "block";
-          modalImg.src = this.src;
-          captionText.innerHTML = this.alt;
-
-          const isConfrimed = window.confirm("この画像を削除しますか？");
-
-          if(isConfrimed) {
-            fetch("/delete?filename=" + img.alt, {method: 'DELETE'}).then((res) => {
-              console.log(res);
-              if(res.status === 204) {
-                window.alert("画像が削除されました");
-                modal.style.display = "none";
-                location.reload();
-              } else {
-                window.alert("画像削除に失敗しました");
-              }
-            })
-          };
-          
-          const span = document.getElementsByClassName("close")[0];
-          span.onclick = function () {
-            modal.style.display = "none";
-          };
-        };
-      });
-    })();
-    </script>
-  </body>
-</html>
-`;
 
 const mainDocument = ({ files, pagination }: ImageProvider) => `
 <!DOCTYPE html>
@@ -636,9 +430,9 @@ const uploadDocument = (files: string[]) => `
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>images.iamtakagi.net / アップロード</title>
+    <title>images.iamtakagi.net / 画像ファイルをアップロードする</title>
     <meta property="description" content="画像を静的配信するだけのサーバー" />
-    <meta property="og:title" content="images.iamtakagi.net / アップロード" />
+    <meta property="og:title" content="images.iamtakagi.net / 画像ファイルをアップロードする" />
     <meta
       property="og:description"
       content="画像を静的配信するだけのサーバー"
@@ -902,6 +696,212 @@ const uploadDocument = (files: string[]) => `
     </script>
   </body>
 </html>  
+`;
+
+const deleteDocument = ({ files, pagination }: ImageProvider) => `
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>images.iamtakagi.net / 画像ファイルを削除する</title>
+  <meta property="description" content="画像を静的配信するだけのサーバー" />
+  <meta property="og:title" content="images.iamtakagi.net / 画像ファイルを削除する" />
+  <meta
+    property="og:description"
+    content="画像を静的配信するだけのサーバー"
+  />
+    <style>
+      h1 {
+        font-size: 1.3rem;
+      }
+      h2 {
+        font-size: 1.2rem;
+      }
+      h3 {
+        font-size: 1.1rem;
+      }
+      table {
+        border-collapse: collapse;
+      }
+      table,
+      th,
+      td {
+        border: 1px solid gray;
+      }
+      th,
+      td {
+        padding: 8px;
+      }
+      
+      img {
+        max-width:20%;
+        cursor:pointer;
+        transition:0.3s;
+      }
+      
+      img:hover {opacity: 0.7;}
+      
+      .modal {
+        display: none; /* Hidden by default */
+        position: fixed; /* Stay in place */
+        z-index: 1; /* Sit on top */
+        padding-top: 100px; /* Location of the box */
+        left: 0;
+        top: 0;
+        width: 100%; /* Full width */
+        height: 100%; /* Full height */
+        overflow: auto; /* Enable scroll if needed */
+        background-color: rgb(0,0,0); /* Fallback color */
+        background-color: rgba(0,0,0,0.9); /* Black w/ opacity */
+      }
+      
+      .modal-content {
+        margin: auto;
+        display: block;
+        width: 80%;
+        max-width: 700px;
+      }
+      
+      #caption {
+        margin: auto;
+        display: block;
+        width: 80%;
+        max-width: 700px;
+        text-align: center;
+        color: #ccc;
+        padding: 10px 0;
+        height: 150px;
+      }
+      
+      /* Add Animation - Zoom in the Modal */
+      .modal-content, #caption {
+        animation-name: zoom;
+        animation-duration: 0.6s;
+      }
+      
+      @keyframes zoom {
+        from {transform:scale(0)}
+        to {transform:scale(1)}
+      }
+      
+      /* The Close Button */
+      .close {
+        position: absolute;
+        top: 15px;
+        right: 35px;
+        color: #f1f1f1;
+        font-size: 40px;
+        font-weight: bold;
+        transition: 0.3s;
+      }
+      
+      .close:hover,
+      .close:focus {
+        color: #bbb;
+        text-decoration: none;
+        cursor: pointer;
+      }
+      
+      /* 100% Image Width on Smaller Screens */
+      @media only screen and (max-width: 700px){
+        .modal-content {
+          width: 100%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <nav style="display:flex;flex-direction:column;">
+      <section style="margin-bottom:1rem;">
+        <h1 style="margin:0;">画像を静的配信するだけのサーバー</h1>
+        <p style="margin:0;">画像置き場(?)</p>
+      </section>
+      <span>画像ファイル数: ${files.length}</span>
+      <a href="/upload">画像ファイルをアップロードする (管理者用)</a>
+      <a href="/delete">画像ファイルを削除する (管理者用)</a>
+    </nav>
+    <hr style="margin-top: 1.2rem; margin-bottom: 1.2rem;" />
+    <main>
+      <section>
+        <h2>画像ファイルを削除する (管理者用)</h2>
+        <p>削除したい画像をクリックしてください</p>
+        <div style="display:flex;flex-wrap:wrap;">
+          ${pagination.files
+            .map((file) => {
+              return `<img src="${SITE_BASEURL}/${file}" alt="${file}"></img>`;
+            })
+            .join("")}
+        </div>
+        <span style="margin-top:1rem;display:inline-block;">
+        ${
+          pagination.prev
+            ? `<a href="${SITE_BASEURL}?page=${pagination.prev}" style="margin-right:.7rem;"><- 前のページ</a>`
+            : ``
+        } 
+        ${
+          pagination.next
+            ? `<a href="${SITE_BASEURL}?page=${pagination.next}">次のページ -></a>`
+            : ``
+        }
+      </span>
+      </section>
+      <div id="modal" class="modal">
+        <span class="close">&times;</span>
+        <img class="modal-content" id="modal-img">
+        <div id="caption"></div>
+      </div>
+    </main>
+    <hr style="margin-top: 1.2rem" />
+    <footer style="display: flex; flex-direction: column;">
+      <span>
+        GitHub:
+        <a href="https://github.com/iamtakagi/images">
+          https://github.com/iamtakagi/images
+        </a>
+      </span>
+      <span>
+        Author: <a href="https://github.com/iamtakagi">iamtakagi</a>
+      </span>
+      <span>© iamtakagi.net</span>
+    </footer>
+    <script>
+    (() => {
+      Array.from(document.getElementsByTagName("img")).map((img) => {
+        img.onclick = function () {
+          const modal = document.getElementById("modal");
+          const modalImg = document.getElementById("modal-img");
+          const captionText = document.getElementById("caption");
+          
+          modal.style.display = "block";
+          modalImg.src = this.src;
+          captionText.innerHTML = this.alt;
+
+          const isConfrimed = window.confirm("この画像ファイルを削除しますか？");
+
+          if(isConfrimed) {
+            fetch("/delete?fileName=" + img.alt, {method: 'DELETE'}).then((res) => {
+              console.log(res);
+              if(res.status === 204) {
+                window.alert("画像ファイルが削除されました");
+                modal.style.display = "none";
+                location.reload();
+              } else {
+                window.alert("画像ファイル削除に失敗しました");
+              }
+            })
+          };
+          
+          const span = document.getElementsByClassName("close")[0];
+          span.onclick = function () {
+            modal.style.display = "none";
+          };
+        };
+      });
+    })();
+    </script>
+  </body>
+</html>
 `;
 
 const port = process.env.PORT || 3000;
