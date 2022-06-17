@@ -820,6 +820,7 @@ const deleteDocument = ({ files, pagination }: ImageProvider) => `
       <span>画像ファイル数: ${files.length}</span>
       <a href="/upload">画像ファイルをアップロードする (管理者用)</a>
       <a href="/delete">画像ファイルを削除する (管理者用)</a>
+      <a href="/">インデックスに戻る</a>
     </nav>
     <hr style="margin-top: 1.2rem; margin-bottom: 1.2rem;" />
     <main>
