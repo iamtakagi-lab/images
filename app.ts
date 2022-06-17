@@ -48,8 +48,13 @@ function paginate(array: string[], size: number, index: number) {
 function readSyncImageFiles() {
   return fs
     .readdirSync(path.join(__dirname, "static"))
-    .filter((file) => /\.(gif|jpe?g|tiff?|png|webp|bmp)$/i.test(file))
-    .reverse(); //最新順に
+    .filter((fileName) => /\.(gif|jpe?g|tiff?|png|webp|bmp)$/i.test(fileName))
+    .map(fileName => ({
+      fileName,
+      time: fs.statSync(path.join(__dirname, "static", fileName)).mtime.getTime(),
+    }) as { fileName: string, time: number })
+    .sort((a, b) => b.time - a.time)
+    .map(file => file.fileName); // 最新順にソート
 }
 
 app.get("/", (req, res, next) => {
