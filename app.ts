@@ -406,7 +406,7 @@ const indexDocument = ({ files, pagination }: ImageProvider) => `
       </span>
       <span>© iamtakagi.net</span>
     </footer>
-    <script>
+    <script type="text/javascript">
       (() => {
         Array.from(document.getElementsByTagName("img")).map((img) => {
           img.onclick = function () {
@@ -597,7 +597,7 @@ const uploadDocument = (files: string[]) => `
       </span>
       <span>© iamtakagi.net</span>
     </footer>
-    <script>
+    <script type="text/javascript">
     (() => {
       document.getElementById("file").value = "";
       document.getElementById("preview").innerHTML = "";
@@ -872,7 +872,7 @@ const deleteDocument = ({ files, pagination }: ImageProvider) => `
       </span>
       <span>© iamtakagi.net</span>
     </footer>
-    <script>
+    <script type="text/javascript">
     (() => {
       Array.from(document.getElementsByTagName("img")).map((img) => {
         img.onclick = function () {
