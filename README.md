@@ -17,7 +17,7 @@ services:
       context: .
       dockerfile: Dockerfile
     volumes:
-      - ./static:/app/static
+      - ./storage:/app/storage
     env_file:
       - .env
     environment:

@@ -47,11 +47,11 @@ function paginate(array: string[], size: number, index: number) {
  */
 function readSyncImageFiles() {
   return fs
-    .readdirSync(path.join(__dirname, "static"))
+    .readdirSync(path.join(__dirname, "storage"))
     .filter((fileName) => /\.(gif|jpe?g|tiff?|png|webp|bmp|svg)$/i.test(fileName))
     .map(fileName => ({
       fileName,
-      time: fs.statSync(path.join(__dirname, "static", fileName)).mtime.getTime(),
+      time: fs.statSync(path.join(__dirname, "storage", fileName)).mtime.getTime(),
     }) as { fileName: string, time: number })
     .sort((a, b) => b.time - a.time)
     .map(file => file.fileName); // 最新順にソート
@@ -77,12 +77,12 @@ app.get("/", (req, res, next) => {
   const provider = { files, pagination };
   res.setHeader("Content-Type", "text/html");
   res.setHeader("Content-DPR", "2.0");
-  res.send(mainDocument(provider));
+  res.send(indexDocument(provider));
 });
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, path.join(__dirname, "static"));
+    cb(null, path.join(__dirname, "storage"));
   },
   filename: function (req, file, cb) {
     cb(
@@ -217,13 +217,13 @@ app.delete("/delete", (req, res, next) => {
 
   if (!fileName || typeof fileName !== "string") return next();
 
-  fs.unlinkSync(path.join(__dirname, "static", fileName));
+  fs.unlinkSync(path.join(__dirname, "storage", fileName));
   res.status(204); // >> 論理削除なら200、物理削除なら204でいけそうです by https://qiita.com/mfykmn/items/02a0b5448228e0b248b3
   res.end();
 });
 
 app.use(
-  express.static(path.join(__dirname, "static"), {
+  express.static(path.join(__dirname, "storage"), {
     setHeaders: function (res, path) {
       res.setHeader(
         "Cache-Control",
@@ -234,7 +234,7 @@ app.use(
   })
 );
 
-const mainDocument = ({ files, pagination }: ImageProvider) => `
+const indexDocument = ({ files, pagination }: ImageProvider) => `
 <!DOCTYPE html>
 <html lang="ja">
   <head>
