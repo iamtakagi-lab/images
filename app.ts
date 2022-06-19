@@ -389,7 +389,7 @@ const indexDocument = ({ files, pagination }: ImageProvider) => `
   </section>
       <div id="modal" class="modal">
         <span class="close">&times;</span>
-        <img class="modal-content" id="modal-img">
+        <img class="modal-content" id="modal-img" />
         <div id="caption"></div>
       </div>
     </main>
@@ -412,11 +412,12 @@ const indexDocument = ({ files, pagination }: ImageProvider) => `
           img.onclick = function () {
             const modal = document.getElementById("modal");
             const modalImg = document.getElementById("modal-img");
-            const captionText = document.getElementById("caption");
+            const caption = document.getElementById("caption");
             
             modal.style.display = "block";
             modalImg.src = this.src;
-            captionText.innerHTML = this.alt;
+            modalImg.alt = this.alt;
+            caption.innerText = this.alt;
 
             const span = document.getElementsByClassName("close")[0];
             span.onclick = function () {
@@ -665,12 +666,13 @@ const uploadDocument = (files: string[]) => `
           img.onclick = function () {
             const modal = document.getElementById("modal");
             const modalImg = document.getElementById("modal-img");
-            const captionText = document.getElementById("caption");
-            img.onclick = function () {
-              modal.style.display = "block";
-              modalImg.src = this.src;
-              captionText.innerHTML = this.alt;
-            };
+            const caption = document.getElementById("caption");
+            
+            modal.style.display = "block";
+            modalImg.src = this.src;
+            modalImg.alt = this.alt;
+            caption.innerText = this.alt;
+
             const span = document.getElementsByClassName("close")[0];
             span.onclick = function () {
               modal.style.display = "none";
@@ -878,11 +880,11 @@ const deleteDocument = ({ files, pagination }: ImageProvider) => `
         img.onclick = function () {
           const modal = document.getElementById("modal");
           const modalImg = document.getElementById("modal-img");
-          const captionText = document.getElementById("caption");
+          const caption = document.getElementById("caption");
           
           modal.style.display = "block";
           modalImg.src = this.src;
-          captionText.innerHTML = this.alt;
+          caption.innerHTML = this.alt;
 
           const isConfrimed = window.confirm("この画像ファイルを削除しますか？");
 
