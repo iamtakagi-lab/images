@@ -897,7 +897,9 @@ const deleteDocument = ({ files, pagination }: ImageProvider) => `
                 window.alert("画像ファイル削除に失敗しました");
               }
             })
-          };
+          } else {
+            modal.style.display = "none";
+          }
           
           const span = document.getElementsByClassName("close")[0];
           span.onclick = function () {
