@@ -41,7 +41,7 @@ interface ImageProvider {
 
 const PAGE_SIZE = 20 as const;
 const ALLOWED_FORMATS_REGEX = /\.(gif|jpe?g|tiff?|png|webp|bmp|svg)$/i
-const ALLOWED_FORMATS = ".png .jpg .jpeg .gif .webp .bmp .tiff .svg"
+const ALLOWED_FORMATS = ".png .jpg .jpeg .gif .webp .bmp .tiff .svg" as const
 
 function paginate(array: string[], size: number, index: number) {
   return array.slice((index - 1) * size, index * size);
