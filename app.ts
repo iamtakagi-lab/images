@@ -3,8 +3,14 @@ require("dotenv").config();
 if (!process.env.SITE_BASEURL) throw new Error("SITE_BASEURL is not set");
 if (!process.env.ADMIN_USER) throw new Error("ADMIN_USER is not set");
 if (!process.env.ADMIN_PASS) throw new Error("ADMIN_PASS is not set");
+if (!process.env.UPLOAD_LIMIT_MB) throw new Error("UPLOAD_LIMIT_MB is not set");
 
 process.env.TZ = "Asia/Tokyo";
+
+const SITE_BASEURL = process.env.SITE_BASEURL;
+const ADMIN_USER = process.env.ADMIN_USER;
+const ADMIN_PASS = process.env.ADMIN_PASS;
+const UPLOAD_LIMIT_MB = parseInt(process.env.UPLOAD_LIMIT_MB) // MB
 
 import moment from "moment";
 import "moment/locale/ja";
@@ -17,8 +23,6 @@ import fs from "fs";
 import multer from "multer";
 import auth from "basic-auth";
 import compare from "tsscmp";
-
-const SITE_BASEURL = process.env.SITE_BASEURL;
 
 const app = express();
 
@@ -98,7 +102,7 @@ const storage = multer.diskStorage({
 });
 const uploader = multer({
   storage,
-  limits: { fileSize: 4 * 1024 * 1024 }, // 4MB
+  limits: { fileSize: UPLOAD_LIMIT_MB * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
     if (
       file.mimetype === "image/png" ||
@@ -121,9 +125,6 @@ const uploader = multer({
     }
   },
 }).array("images", 4);
-
-const ADMIN_USER = process.env.ADMIN_USER;
-const ADMIN_PASS = process.env.ADMIN_PASS;
 
 function checkAuth(user: string, pass: string) {
   let valid = true;
