@@ -36,6 +36,8 @@ interface ImageProvider {
 }
 
 const PAGE_SIZE = 20 as const;
+const ALLOWED_FORMATS_REGEX = /\.(gif|jpe?g|tiff?|png|webp|bmp|svg)$/i
+const ALLOWED_FORMATS = ".png .jpg .jpeg .gif .webp .bmp .tiff .svg"
 
 function paginate(array: string[], size: number, index: number) {
   return array.slice((index - 1) * size, index * size);
@@ -48,7 +50,7 @@ function paginate(array: string[], size: number, index: number) {
 function readSyncImageFiles() {
   return fs
     .readdirSync(path.join(__dirname, "storage"))
-    .filter((fileName) => /\.(gif|jpe?g|tiff?|png|webp|bmp|svg)$/i.test(fileName))
+    .filter((fileName) => ALLOWED_FORMATS_REGEX.test(fileName))
     .map(fileName => ({
       fileName,
       time: fs.statSync(path.join(__dirname, "storage", fileName)).mtime.getTime(),
@@ -94,7 +96,7 @@ const storage = multer.diskStorage({
     );
   },
 });
-const upload = multer({
+const uploader = multer({
   storage,
   limits: { fileSize: 4 * 1024 * 1024 }, // 4MB
   fileFilter: (req, file, cb) => {
@@ -112,7 +114,7 @@ const upload = multer({
     } else {
       cb(null, false);
       const err = new Error(
-        "サポートされているファイル形式: .png .jpg .jpeg .gif .webp .bmp .tiff .svg"
+        `サポートされているファイル形式: ${ALLOWED_FORMATS}`
       );
       err.name = "ExtensionError";
       return cb(err);
@@ -144,7 +146,7 @@ app.post("/upload", (req, res, next) => {
     return;
   }
 
-  upload(req, res, function (err) {
+  uploader(req, res, function (err) {
     if (err instanceof multer.MulterError) {
       res
         .status(500)
@@ -221,6 +223,27 @@ app.delete("/delete", (req, res, next) => {
   res.status(204); // >> 論理削除なら200、物理削除なら204でいけそうです by https://qiita.com/mfykmn/items/02a0b5448228e0b248b3
   res.end();
 });
+
+app.get("/i/:fileName", (req, res, next) => {
+  const { fileName } = req.params;
+  if (!fileName || typeof fileName !== "string") return next();
+  if(!(ALLOWED_FORMATS_REGEX.test(fileName))) return res.status(415).send({error: "Unsupported Media Type"}).end()
+  const files = readSyncImageFiles();
+  const index = 1 as const;
+  const paginated = paginate(files, PAGE_SIZE, index);
+  const prevPaginated = paginate(files, PAGE_SIZE, index - 1);
+  const nextPaginated = paginate(files, PAGE_SIZE, index + 1);
+  const pagination = {
+    index,
+    size: PAGE_SIZE,
+    prev: prevPaginated.length != 0 ? index - 1 : null,
+    next: nextPaginated.length != 0 ? index + 1 : null,
+    files: paginated,
+  };
+  const provider = { files, pagination };
+  res.setHeader("Content-Type", "text/html");
+  res.send(previewDocument(fileName, provider));
+})
 
 app.use(
   express.static(path.join(__dirname, "storage"), {
@@ -410,6 +433,7 @@ const indexDocument = ({ files, pagination }: ImageProvider) => `
       (() => {
         Array.from(document.getElementsByTagName("img")).map((img) => {
           img.onclick = function () {
+            history.pushState(null, null, "/i/" + this.alt);
             const modal = document.getElementById("modal");
             const modalImg = document.getElementById("modal-img");
             const caption = document.getElementById("caption");
@@ -421,6 +445,226 @@ const indexDocument = ({ files, pagination }: ImageProvider) => `
 
             const span = document.getElementsByClassName("close")[0];
             span.onclick = function () {
+              history.pushState(null, null, "/");
+              modal.style.display = "none";
+            };
+          };
+        });
+      })();
+    </script>
+  </body>
+</html>
+`;
+
+const previewDocument = (fileName: string, { files, pagination }: ImageProvider) => `
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>images.iamtakagi.net</title>
+    <meta
+      property="description"
+      content="${fileName}"
+    />
+    <meta
+      property="og:title"
+      content="images.iamtakagi.net"
+    />
+    <meta
+      property="og:description"
+      content="${fileName}"
+    />
+    <meta
+      property="og:image"
+      content="${SITE_BASEURL}/${fileName}"
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+    <style>
+      h1 {
+        font-size: 1.3rem;
+      }
+      h2 {
+        font-size: 1.2rem;
+      }
+      h3 {
+        font-size: 1.1rem;
+      }
+      table {
+        border-collapse: collapse;
+      }
+      table,
+      th,
+      td {
+        border: 1px solid gray;
+      }
+      th,
+      td {
+        padding: 8px;
+      }
+      
+      img {
+        max-width:20%;
+        cursor:pointer;
+        transition:0.3s;
+      }
+      
+      img:hover {opacity: 0.7;}
+      
+      .modal {
+        display: none; /* Hidden by default */
+        position: fixed; /* Stay in place */
+        z-index: 1; /* Sit on top */
+        padding-top: 100px; /* Location of the box */
+        left: 0;
+        top: 0;
+        width: 100%; /* Full width */
+        height: 100%; /* Full height */
+        overflow: auto; /* Enable scroll if needed */
+        background-color: rgb(0,0,0); /* Fallback color */
+        background-color: rgba(0,0,0,0.9); /* Black w/ opacity */
+      }
+      
+      .modal-content {
+        margin: auto;
+        display: block;
+        width: 80%;
+        max-width: 700px;
+      }
+      
+      #caption {
+        margin: auto;
+        display: block;
+        width: 80%;
+        max-width: 700px;
+        text-align: center;
+        color: #ccc;
+        padding: 10px 0;
+        height: 150px;
+      }
+      
+      /* Add Animation - Zoom in the Modal */
+      .modal-content, #caption {
+        animation-name: zoom;
+        animation-duration: 0.6s;
+      }
+      
+      @keyframes zoom {
+        from {transform:scale(0)}
+        to {transform:scale(1)}
+      }
+      
+      /* The Close Button */
+      .close {
+        position: absolute;
+        top: 15px;
+        right: 35px;
+        color: #f1f1f1;
+        font-size: 40px;
+        font-weight: bold;
+        transition: 0.3s;
+      }
+      
+      .close:hover,
+      .close:focus {
+        color: #bbb;
+        text-decoration: none;
+        cursor: pointer;
+      }
+      
+      /* 100% Image Width on Smaller Screens */
+      @media only screen and (max-width: 700px){
+        .modal-content {
+          width: 100%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <nav style="display:flex;flex-direction:column;">
+      <section style="margin-bottom:1rem;">
+        <h1 style="margin:0;">画像配信サーバ</h1>
+        <p style="margin:0;">画像置き場 (?)</p>
+      </section>
+      <span>画像ファイル数: ${files.length}</span>
+      <a href="/upload">画像ファイルをアップロードする (管理者用)</a>
+      <a href="/delete">画像ファイルを削除する (管理者用)</a>
+    </nav>
+    <hr style="margin-top: 1.2rem; margin-bottom: 1.2rem;" />
+    <main>
+    <section>
+    <h2>配信されている画像一覧</h2>
+    <div style="display:flex;flex-wrap:wrap;">
+      ${pagination.files
+        .map((file) => {
+          return `<img src="${SITE_BASEURL}/${file}" alt="${file}"></img>`;
+        })
+        .join("")}
+    </div>
+    <span style="margin-top:1rem;display:inline-block;">
+    ${
+      pagination.prev
+        ? `<a href="${SITE_BASEURL}?page=${pagination.prev}" style="margin-right:.7rem;"><- 前のページ</a>`
+        : ``
+    } 
+    ${
+      pagination.next
+        ? `<a href="${SITE_BASEURL}?page=${pagination.next}">次のページ -></a>`
+        : ``
+    }
+  </span>
+  </section>
+      <div id="modal" class="modal">
+        <span class="close">&times;</span>
+        <img class="modal-content" id="modal-img" />
+        <div id="caption"></div>
+      </div>
+    </main>
+    <hr style="margin-top: 1.2rem" />
+    <footer style="display: flex; flex-direction: column;">
+      <span>
+        GitHub:
+        <a href="https://github.com/iamtakagi/images">
+          https://github.com/iamtakagi/images
+        </a>
+      </span>
+      <span>
+        Author: <a href="https://github.com/iamtakagi">iamtakagi</a>
+      </span>
+      <span>© iamtakagi.net</span>
+    </footer>
+    <script type="text/javascript">
+      (() => {
+        const modal = document.getElementById("modal");
+        const modalImg = document.getElementById("modal-img");
+        const caption = document.getElementById("caption");
+            
+        modal.style.display = "block";
+        modalImg.src = "${SITE_BASEURL}/${fileName}";
+        modalImg.alt = "${fileName}";
+        caption.innerText = "${fileName}";
+
+        const span = document.getElementsByClassName("close")[0];
+        span.onclick = function () {
+          history.pushState(null, null, "/");
+          modal.style.display = "none";
+        };
+
+        Array.from(document.getElementsByTagName("img")).map((img) => {
+          img.onclick = function () {
+            history.pushState(null, null, "/i/" + this.alt);
+            const modal = document.getElementById("modal");
+            const modalImg = document.getElementById("modal-img");
+            const caption = document.getElementById("caption");
+            
+            modal.style.display = "block";
+            modalImg.src = this.src;
+            modalImg.alt = this.alt;
+            caption.innerText = this.alt;
+
+            const span = document.getElementsByClassName("close")[0];
+            span.onclick = function () {
+              history.pushState(null, null, "/");
               modal.style.display = "none";
             };
           };
@@ -574,7 +818,7 @@ const uploadDocument = (files: string[]) => `
             name="images"
             id="file"
           />
-          <span>サポートされているファイル形式: .png .jpg .jpeg .gif .webp .bmp .tiff .svg</span>
+          <span>サポートされているファイル形式: ${ALLOWED_FORMATS}</span>
           <button id="clear" type="button">クリア</button>
           <button type="submit">アップロード</button>
         </form>
