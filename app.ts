@@ -1149,10 +1149,10 @@ const deleteDocument = ({ files, pagination }: ImageProvider) => `
           modalImg.src = this.src;
           caption.innerHTML = this.alt;
 
-          const isConfrimed = window.confirm("この画像ファイルを削除しますか？");
+          const isConfrimed = window.confirm("この画像ファイルを削除しますか？ (" + this.alt + ")");
 
           if(isConfrimed) {
-            fetch("/delete?fileName=" + fileName, {method: 'DELETE'}).then((res) => {
+            fetch("/delete?fileName=" + this.alt, {method: 'DELETE'}).then((res) => {
               console.log(res);
               if(res.status === 204) {
                 window.alert("動画ファイルが削除されました");
