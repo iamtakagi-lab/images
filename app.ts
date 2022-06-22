@@ -10,7 +10,7 @@ process.env.TZ = "Asia/Tokyo";
 const SITE_BASEURL = process.env.SITE_BASEURL;
 const ADMIN_USER = process.env.ADMIN_USER;
 const ADMIN_PASS = process.env.ADMIN_PASS;
-const UPLOAD_LIMIT_MB = parseInt(process.env.UPLOAD_LIMIT_MB) // MB
+const UPLOAD_LIMIT_MB = parseInt(process.env.UPLOAD_LIMIT_MB); // MB
 
 import moment from "moment";
 import "moment/locale/ja";
@@ -40,8 +40,8 @@ interface ImageProvider {
 }
 
 const PAGE_SIZE = 20 as const;
-const ALLOWED_FORMATS_REGEX = /\.(gif|jpe?g|tiff?|png|webp|bmp|svg)$/i
-const ALLOWED_FORMATS = ".png .jpg .jpeg .gif .webp .bmp .tiff .svg" as const
+const ALLOWED_FORMATS_REGEX = /\.(gif|jpe?g|tiff?|png|webp|bmp|svg)$/i;
+const ALLOWED_FORMATS = ".png .jpg .jpeg .gif .webp .bmp .tiff .svg" as const;
 
 function paginate(array: string[], size: number, index: number) {
   return array.slice((index - 1) * size, index * size);
@@ -55,12 +55,17 @@ function readSyncImageFiles() {
   return fs
     .readdirSync(path.join(__dirname, "storage"))
     .filter((fileName) => ALLOWED_FORMATS_REGEX.test(fileName))
-    .map(fileName => ({
-      fileName,
-      time: fs.statSync(path.join(__dirname, "storage", fileName)).mtime.getTime(),
-    }) as { fileName: string, time: number })
+    .map(
+      (fileName) =>
+        ({
+          fileName,
+          time: fs
+            .statSync(path.join(__dirname, "storage", fileName))
+            .mtime.getTime(),
+        } as { fileName: string; time: number })
+    )
     .sort((a, b) => b.time - a.time)
-    .map(file => file.fileName); // 最新順にソート
+    .map((file) => file.fileName); // 最新順にソート
 }
 
 app.get("/", (req, res, next) => {
@@ -220,7 +225,16 @@ app.delete("/delete", (req, res, next) => {
 
   if (!fileName || typeof fileName !== "string") return next();
 
-  fs.unlinkSync(path.join(__dirname, "storage", fileName));
+  // 画像ファイルが存在しない
+  if (!fs.existsSync(path.resolve(__dirname, "storage", fileName)))
+    return res.status(404).end();
+
+  try {
+    // 画像ファイル削除
+    fs.unlinkSync(path.resolve(__dirname, "storage", fileName));
+  } catch (error) {
+    res.status(500).send(error).end();
+  }
   res.status(204); // >> 論理削除なら200、物理削除なら204でいけそうです by https://qiita.com/mfykmn/items/02a0b5448228e0b248b3
   res.end();
 });
@@ -228,7 +242,8 @@ app.delete("/delete", (req, res, next) => {
 app.get("/i/:fileName", (req, res, next) => {
   const { fileName } = req.params;
   if (!fileName || typeof fileName !== "string") return next();
-  if(!(ALLOWED_FORMATS_REGEX.test(fileName))) return res.status(415).send({error: "Unsupported Media Type"}).end()
+  if (!ALLOWED_FORMATS_REGEX.test(fileName))
+    return res.status(415).send({ error: "Unsupported Media Type" }).end();
   const files = readSyncImageFiles();
   const index = 1 as const;
   const paginated = paginate(files, PAGE_SIZE, index);
@@ -244,7 +259,7 @@ app.get("/i/:fileName", (req, res, next) => {
   const provider = { files, pagination };
   res.setHeader("Content-Type", "text/html");
   res.send(previewDocument(fileName, provider));
-})
+});
 
 app.use(
   express.static(path.join(__dirname, "storage"), {
@@ -457,7 +472,10 @@ const indexDocument = ({ files, pagination }: ImageProvider) => `
 </html>
 `;
 
-const previewDocument = (fileName: string, { files, pagination }: ImageProvider) => `
+const previewDocument = (
+  fileName: string,
+  { files, pagination }: ImageProvider
+) => `
 <!DOCTYPE html>
 <html lang="ja">
   <head>
@@ -1134,14 +1152,16 @@ const deleteDocument = ({ files, pagination }: ImageProvider) => `
           const isConfrimed = window.confirm("この画像ファイルを削除しますか？");
 
           if(isConfrimed) {
-            fetch("/delete?fileName=" + img.alt, {method: 'DELETE'}).then((res) => {
+            fetch("/delete?fileName=" + fileName, {method: 'DELETE'}).then((res) => {
               console.log(res);
               if(res.status === 204) {
-                window.alert("画像ファイルが削除されました");
+                window.alert("動画ファイルが削除されました");
                 modal.style.display = "none";
                 location.reload();
-              } else {
-                window.alert("画像ファイル削除に失敗しました");
+              } else if (res.status === 404 ){
+                window.alert("画像ファイルが存在しません (" + JSON.stringfy(res.body) + ")");
+              } else if (res.status === 500 ) {
+                window.alert("画像ファイル削除に失敗しました (" + JSON.stringfy(res.body) + ")");
               }
             })
           } else {
