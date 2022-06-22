@@ -62,7 +62,7 @@ $ node app.js
 - SVG
 
 ### アップロードサイズ
-上限 4MB に設定してあります。変更が必要な場合は [app.ts](app.ts) 内で適宣修正してください。
+.env にて適宣設定
 
 ## LICENSE
 MIT License.
