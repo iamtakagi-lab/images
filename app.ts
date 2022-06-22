@@ -1153,7 +1153,6 @@ const deleteDocument = ({ files, pagination }: ImageProvider) => `
 
           if(isConfrimed) {
             fetch("/delete?fileName=" + this.alt, {method: 'DELETE'}).then((res) => {
-              console.log(res);
               if(res.status === 204) {
                 window.alert("動画ファイルが削除されました");
                 modal.style.display = "none";
