@@ -19,10 +19,12 @@ import { name as APP_NAME, version as APP_VERSION } from "./package.json";
 
 import express from "express";
 import path from "path";
-import fs from "fs";
+import fs, { createWriteStream } from "fs";
 import multer from "multer";
 import auth from "basic-auth";
 import compare from "tsscmp";
+import axios, { Axios, AxiosError } from "axios";
+import { v4 as uuidv4 } from 'uuid';
 
 const app = express();
 
@@ -88,7 +90,7 @@ app.get("/", (req, res, next) => {
   const provider = { files, pagination };
   res.setHeader("Content-Type", "text/html");
   res.setHeader("Content-DPR", "2.0");
-  res.send(indexDocument(provider));
+  res.send(IndexPage(provider));
 });
 
 const storage = multer.diskStorage({
@@ -183,7 +185,7 @@ app.get("/upload", (req, res) => {
   const files = readSyncImageFiles();
   res.setHeader("Content-Type", "text/html");
   res.status(201);
-  res.send(uploadDocument(files));
+  res.send(UploadPage(files));
 });
 
 app.get("/delete", (req, res, next) => {
@@ -206,7 +208,7 @@ app.get("/delete", (req, res, next) => {
   const provider = { files, pagination };
   res.setHeader("Content-Type", "text/html");
   res.setHeader("Content-DPR", "2.0");
-  res.send(deleteDocument(provider));
+  res.send(DeletePage(provider));
 });
 
 app.delete("/delete", (req, res, next) => {
@@ -258,7 +260,55 @@ app.get("/i/:fileName", (req, res, next) => {
   };
   const provider = { files, pagination };
   res.setHeader("Content-Type", "text/html");
-  res.send(previewDocument(fileName, provider));
+  res.send(ImagePage(fileName, provider));
+});
+
+app.get("/url2image", async (req, res, next) => {
+  const files = readSyncImageFiles();
+  res.setHeader("Content-Type", "text/html");
+  res.send(Url2ImagePage(files));
+});
+
+app.put("/url2image", async (req, res, next) => {
+  const credentials = auth(req);
+  if (!credentials || !checkAuth(credentials.name, credentials.pass)) {
+    res.status(401);
+    res.setHeader(
+      "WWW-Authenticate",
+      'Basic realm="Access to the staging site", charset="UTF-8"'
+    );
+    res.end("Access denied");
+    return;
+  }
+
+  const { url } = req.query;
+  if (!url || typeof url !== "string") return next();
+  console.log("url: " + url);
+  axios({
+    method: "get",
+    url: url,
+    responseType: "stream",
+  })
+    .then((response) => {
+      const contentType = response.headers["content-type"];
+      if (!contentType.startsWith("image")) return res.status(500).end();
+      const ext = contentType.split("/")[1];
+      const destFileName = `${uuidv4()}-${moment(Date.now()).format("YYYYMMDDHHmmss")}.${ext}`
+      const writer = createWriteStream(
+        path.resolve(
+          __dirname,
+          "storage",
+          destFileName
+        )
+      );
+      response.data.pipe(writer);
+      console.log(response);
+      res.status(200).send({imageUrl: `${SITE_BASEURL}/${destFileName}`, fileName: destFileName}).end();
+    })
+    .catch((error: AxiosError) => {
+      console.log(error);
+      res.status(500).send({ error }).end();
+    });
 });
 
 app.use(
@@ -273,7 +323,7 @@ app.use(
   })
 );
 
-const indexDocument = ({ files, pagination }: ImageProvider) => `
+const IndexPage = ({ files, pagination }: ImageProvider) => `
 <!DOCTYPE html>
 <html lang="ja">
   <head>
@@ -393,15 +443,19 @@ const indexDocument = ({ files, pagination }: ImageProvider) => `
     </style>
   </head>
   <body>
-    <nav style="display:flex;flex-direction:column;">
-      <section style="margin-bottom:1rem;">
-        <h1 style="margin:0;">画像配信サーバ</h1>
-        <p style="margin:0;">画像置き場 (?)</p>
-      </section>
-      <span>画像ファイル数: ${files.length}</span>
-      <a href="/upload">画像ファイルをアップロードする (管理者用)</a>
-      <a href="/delete">画像ファイルを削除する (管理者用)</a>
-    </nav>
+  <header style="display:flex;flex-direction:column;">
+  <section style="margin-bottom:1rem;">
+    <h1 style="margin:0;">画像配信サーバ"</h1>
+    <p style="margin:0;">動画置き場 (?)</p>
+  </section>
+  <span>画像ファイル数: ${files.length}</span>
+  <nav style="display:flex;flex-direction:column;">
+    <a href="/">インデックスに戻る</a>
+    <a href="/upload">画像ファイルをアップロードする (管理者用)</a>
+    <a href="/delete">画像ファイルを削除する (管理者用)</a>
+    <a href="/url2image">URL を介してサーバで直接ダウンロードする (管理者用)</a>
+  </nav>
+</header>
     <hr style="margin-top: 1.2rem; margin-bottom: 1.2rem;" />
     <main>
     <section>
@@ -472,7 +526,7 @@ const indexDocument = ({ files, pagination }: ImageProvider) => `
 </html>
 `;
 
-const previewDocument = (
+const ImagePage = (
   fileName: string,
   { files, pagination }: ImageProvider
 ) => `
@@ -600,15 +654,19 @@ const previewDocument = (
     </style>
   </head>
   <body>
-    <nav style="display:flex;flex-direction:column;">
-      <section style="margin-bottom:1rem;">
-        <h1 style="margin:0;">画像配信サーバ</h1>
-        <p style="margin:0;">画像置き場 (?)</p>
-      </section>
-      <span>画像ファイル数: ${files.length}</span>
-      <a href="/upload">画像ファイルをアップロードする (管理者用)</a>
-      <a href="/delete">画像ファイルを削除する (管理者用)</a>
-    </nav>
+  <header style="display:flex;flex-direction:column;">
+  <section style="margin-bottom:1rem;">
+    <h1 style="margin:0;">画像配信サーバ"</h1>
+    <p style="margin:0;">動画置き場 (?)</p>
+  </section>
+  <span>画像ファイル数: ${files.length}</span>
+  <nav style="display:flex;flex-direction:column;">
+    <a href="/">インデックスに戻る</a>
+    <a href="/upload">画像ファイルをアップロードする (管理者用)</a>
+    <a href="/delete">画像ファイルを削除する (管理者用)</a>
+    <a href="/url2image">URL を介してサーバで直接ダウンロードする (管理者用)</a>
+  </nav>
+</header>
     <hr style="margin-top: 1.2rem; margin-bottom: 1.2rem;" />
     <main>
     <section>
@@ -694,7 +752,7 @@ const previewDocument = (
 </html>
 `;
 
-const uploadDocument = (files: string[]) => `
+const UploadPage = (files: string[]) => `
 <!DOCTYPE html>
 <html lang="ja">
   <head>
@@ -813,16 +871,19 @@ const uploadDocument = (files: string[]) => `
     </style>
   </head>
   <body>
-    <nav style="display: flex; flex-direction: column">
-      <section style="margin-bottom: 1rem">
-        <h1 style="margin: 0">画像配信サーバ</h1>
-        <p style="margin: 0">画像置き場 (?)</p>
-      </section>
-      <span>画像ファイル数: ${files.length}</span>
-      <a href="/upload">画像ファイルをアップロードする (管理者用)</a>
-      <a href="/delete">画像ファイルを削除する (管理者用)</a>
-      <a href="/">インデックスに戻る</a>
-    </nav>
+  <header style="display:flex;flex-direction:column;">
+  <section style="margin-bottom:1rem;">
+    <h1 style="margin:0;">画像配信サーバ"</h1>
+    <p style="margin:0;">動画置き場 (?)</p>
+  </section>
+  <span>画像ファイル数: ${files.length}</span>
+  <nav style="display:flex;flex-direction:column;">
+    <a href="/">インデックスに戻る</a>
+    <a href="/upload">画像ファイルをアップロードする (管理者用)</a>
+    <a href="/delete">画像ファイルを削除する (管理者用)</a>
+    <a href="/url2image">URL を介してサーバで直接ダウンロードする (管理者用)</a>
+  </nav>
+</header>
     <hr style="margin-top: 1.2rem; margin-bottom: 1.2rem" />
     <main>
       <section>
@@ -969,7 +1030,7 @@ const uploadDocument = (files: string[]) => `
 </html>  
 `;
 
-const deleteDocument = ({ files, pagination }: ImageProvider) => `
+const DeletePage = ({ files, pagination }: ImageProvider) => `
 <!DOCTYPE html>
 <html lang="ja">
   <head>
@@ -1083,16 +1144,19 @@ const deleteDocument = ({ files, pagination }: ImageProvider) => `
     </style>
   </head>
   <body>
-    <nav style="display:flex;flex-direction:column;">
-      <section style="margin-bottom:1rem;">
-        <h1 style="margin:0;">画像配信サーバ</h1>
-        <p style="margin:0;">画像置き場 (?)</p>
-      </section>
-      <span>画像ファイル数: ${files.length}</span>
-      <a href="/upload">画像ファイルをアップロードする (管理者用)</a>
-      <a href="/delete">画像ファイルを削除する (管理者用)</a>
-      <a href="/">インデックスに戻る</a>
-    </nav>
+  <header style="display:flex;flex-direction:column;">
+  <section style="margin-bottom:1rem;">
+    <h1 style="margin:0;">画像配信サーバ"</h1>
+    <p style="margin:0;">動画置き場 (?)</p>
+  </section>
+  <span>画像ファイル数: ${files.length}</span>
+  <nav style="display:flex;flex-direction:column;">
+    <a href="/">インデックスに戻る</a>
+    <a href="/upload">画像ファイルをアップロードする (管理者用)</a>
+    <a href="/delete">画像ファイルを削除する (管理者用)</a>
+    <a href="/url2image">URL を介してサーバで直接ダウンロードする (管理者用)</a>
+  </nav>
+</header>
     <hr style="margin-top: 1.2rem; margin-bottom: 1.2rem;" />
     <main>
       <section>
@@ -1179,6 +1243,227 @@ const deleteDocument = ({ files, pagination }: ImageProvider) => `
   </body>
 </html>
 `;
+
+export const Url2ImagePage = (files: string[]) => `
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>videos.iamtakagi.net / URL を介してサーバで直接ダウンロードする</title>
+    <meta property="description" content="画像配信サーバ"" />
+    <meta
+      property="og:title"
+      content="videos.iamtakagi.net / URL を介してサーバで直接ダウンロードする"
+    />
+    <meta property="og:description" content="画像配信サーバ"" />
+    <style>
+    h1 {
+      font-size: 1.3rem;
+    }
+    h2 {
+      font-size: 1.2rem;
+    }
+    h3 {
+      font-size: 1.1rem;
+    }
+    h1 {
+      font-size: 1.3rem;
+    }
+    h2 {
+      font-size: 1.2rem;
+    }
+    h3 {
+      font-size: 1.1rem;
+    }
+    table {
+      border-collapse: collapse;
+    }
+    table,
+    th,
+    td {
+      border: 1px solid gray;
+    }
+    th,
+    td {
+      padding: 8px;
+    }
+    
+    img {
+      max-width:20%;
+      cursor:pointer;
+      transition:0.3s;
+    }
+    
+    img:hover {opacity: 0.7;}
+    
+    .modal {
+      display: none; /* Hidden by default */
+      position: fixed; /* Stay in place */
+      z-index: 1; /* Sit on top */
+      padding-top: 100px; /* Location of the box */
+      left: 0;
+      top: 0;
+      width: 100%; /* Full width */
+      height: 100%; /* Full height */
+      overflow: auto; /* Enable scroll if needed */
+      background-color: rgb(0,0,0); /* Fallback color */
+      background-color: rgba(0,0,0,0.9); /* Black w/ opacity */
+    }
+    
+    .modal-content {
+      margin: auto;
+      display: block;
+      width: 80%;
+      max-width: 700px;
+    }
+    
+    #caption {
+      margin: auto;
+      display: block;
+      width: 80%;
+      max-width: 700px;
+      text-align: center;
+      color: #ccc;
+      padding: 10px 0;
+      height: 150px;
+    }
+    
+    /* Add Animation - Zoom in the Modal */
+    .modal-content, #caption {
+      animation-name: zoom;
+      animation-duration: 0.6s;
+    }
+    
+    @keyframes zoom {
+      from {transform:scale(0)}
+      to {transform:scale(1)}
+    }
+    
+    /* The Close Button */
+    .close {
+      position: absolute;
+      top: 15px;
+      right: 35px;
+      color: #f1f1f1;
+      font-size: 40px;
+      font-weight: bold;
+      transition: 0.3s;
+    }
+    
+    .close:hover,
+    .close:focus {
+      color: #bbb;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    
+    /* 100% Image Width on Smaller Screens */
+    @media only screen and (max-width: 700px){
+      .modal-content {
+        width: 100%;
+      }
+    }
+    </style>
+    <script type="text/javascript">
+      async function url2image(event) {
+        event.preventDefault();
+        const submitBtn = document.getElementById("submit_btn")
+        submitBtn.disabled = true;
+        const form = document.querySelector("form");
+        const status = document.getElementById("status")
+        status.innerText = "サーバー上で画像ファイルをダウンロードしています..."
+        const url = document.getElementById("url").value;
+        const res = await fetch("/url2image?url=" + encodeURI(url), {method: 'PUT'});
+        if (res.status === 200) {
+          status.innerText = "サーバー上でのダウンロードが完了しました";
+          const { imageUrl, fileName } = await res.json()
+          const img = document.querySelector("img");
+          img.src = imageUrl;
+          img.alt = fileName;
+        }
+        else if (res.status === 500) {
+          status.innerText = "サーバー上でのダウンロードに失敗しました";
+        }
+        submitBtn.disabled = false;
+      }
+
+      function showModal() {
+        const img = document.querySelector("img");
+
+        const modal = document.getElementById("modal");
+        const modalImg = document.getElementById("modal-img");
+        const caption = document.getElementById("caption");
+          
+        modal.style.display = "block";
+        modalImg.src = img.src;
+        caption.innerHTML = img.alt;
+
+        const span = document.getElementsByClassName("close")[0];
+        span.onclick = function () {
+          modal.style.display = "none";
+        };
+      }
+    </script>
+  </head>
+  <body>
+    <header style="display:flex;flex-direction:column;">
+      <section style="margin-bottom:1rem;">
+        <h1 style="margin:0;">画像配信サーバ"</h1>
+        <p style="margin:0;">画像置き場 (?)</p>
+      </section>
+      <span>画像ファイル数: ${files.length}</span>
+      <nav style="display:flex;flex-direction:column;">
+        <a href="/">インデックスに戻る</a>
+        <a href="/upload">画像ファイルをアップロードする (管理者用)</a>
+        <a href="/delete">画像ファイルを削除する (管理者用)</a>
+        <a href="/url2image">URL を介してサーバに直接ダウンロードする (管理者用)</a>
+      </nav>
+    </header>
+    <hr style="margin-top: 1.2rem; margin-bottom: 1.2rem" />
+    <main>
+      <section>
+        <h2>URL を介してサーバに直接ダウンロードする (管理者用)</h2>
+        <form
+          onsubmit="url2image(event)"
+          style="display: flex; flex-direction: column"
+        >
+          <label for="url"
+            >画像の URL を入力してください</label
+          >
+          <input
+            type="text"
+            id="url"
+          />
+          <span>サポートされているファイル形式: ${ALLOWED_FORMATS}</span>
+          <button id="submit_btn" type="submit">実行</button>
+          <span id="status"></span>
+          <img src="" alt="" onclick="showModal()"></img>
+        </form>
+      </section>
+      <div id="modal" class="modal">
+        <span class="close">&times;</span>
+        <img class="modal-content" id="modal-img">
+        <div id="caption"></div>
+      </div>
+    </main>
+    <hr style="margin-top: 1.2rem" />
+    <footer style="display: flex; flex-direction: column">
+      <span>
+        GitHub:
+        <a href="https://github.com/iamtakagi/images">
+          https://github.com/iamtakagi/images
+        </a>
+      </span>
+      <span>
+        Author: <a href="https://github.com/iamtakagi">iamtakagi</a>
+      </span>
+      <span>© iamtakagi.net</span>
+    </footer>
+  </body>
+</html>
+`;
+
 
 const port = process.env.PORT || 3000;
 app.listen(port);
