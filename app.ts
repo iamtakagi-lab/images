@@ -444,12 +444,11 @@ const IndexPage = ({ files, pagination }: ImageProvider) => `
   <body>
   <header style="display:flex;flex-direction:column;">
   <section style="margin-bottom:1rem;">
-    <h1 style="margin:0;">画像配信サーバ"</h1>
+    <h1 style="margin:0;">画像配信サーバ</h1>
     <p style="margin:0;">動画置き場 (?)</p>
   </section>
   <span>画像ファイル数: ${files.length}</span>
   <nav style="display:flex;flex-direction:column;">
-    <a href="/">インデックスに戻る</a>
     <a href="/upload">画像ファイルをアップロードする (管理者用)</a>
     <a href="/delete">画像ファイルを削除する (管理者用)</a>
     <a href="/url2image">URL を介してサーバで直接ダウンロードする (管理者用)</a>
@@ -655,7 +654,7 @@ const ImagePage = (
   <body>
   <header style="display:flex;flex-direction:column;">
   <section style="margin-bottom:1rem;">
-    <h1 style="margin:0;">画像配信サーバ"</h1>
+    <h1 style="margin:0;">画像配信サーバ</h1>
     <p style="margin:0;">動画置き場 (?)</p>
   </section>
   <span>画像ファイル数: ${files.length}</span>
@@ -872,7 +871,7 @@ const UploadPage = (files: string[]) => `
   <body>
   <header style="display:flex;flex-direction:column;">
   <section style="margin-bottom:1rem;">
-    <h1 style="margin:0;">画像配信サーバ"</h1>
+    <h1 style="margin:0;">画像配信サーバ</h1>
     <p style="margin:0;">動画置き場 (?)</p>
   </section>
   <span>画像ファイル数: ${files.length}</span>
@@ -1145,7 +1144,7 @@ const DeletePage = ({ files, pagination }: ImageProvider) => `
   <body>
   <header style="display:flex;flex-direction:column;">
   <section style="margin-bottom:1rem;">
-    <h1 style="margin:0;">画像配信サーバ"</h1>
+    <h1 style="margin:0;">画像配信サーバ</h1>
     <p style="margin:0;">動画置き場 (?)</p>
   </section>
   <span>画像ファイル数: ${files.length}</span>
@@ -1406,7 +1405,7 @@ export const Url2ImagePage = (files: string[]) => `
   <body>
     <header style="display:flex;flex-direction:column;">
       <section style="margin-bottom:1rem;">
-        <h1 style="margin:0;">画像配信サーバ"</h1>
+        <h1 style="margin:0;">画像配信サーバ</h1>
         <p style="margin:0;">画像置き場 (?)</p>
       </section>
       <span>画像ファイル数: ${files.length}</span>
