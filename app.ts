@@ -1372,14 +1372,14 @@ export const Url2ImagePage = (files: string[]) => `
         const url = document.getElementById("url").value;
         const res = await fetch("/url2image?url=" + encodeURI(url), {method: 'PUT'});
         if (res.status === 200) {
-          status.innerText = "サーバ上でのダウンロードが完了しました";
+          status.innerText = "サーバ上での画像ダウンロードが完了しました";
           const { imageUrl, fileName } = await res.json()
           const img = document.querySelector("img");
           img.src = imageUrl;
           img.alt = fileName;
         }
         else if (res.status === 500) {
-          status.innerText = "サーバ上でのダウンロードに失敗しました";
+          status.innerText = "サーバ上での画像ダウンロードに失敗しました";
         }
         submitBtn.disabled = false;
       }
