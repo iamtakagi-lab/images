@@ -1246,11 +1246,11 @@ export const Url2ImagePage = (files: string[]) => `
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>videos.iamtakagi.net / URL を介してサーバで直接ダウンロードする</title>
+    <title>images.iamtakagi.net / URL を介してサーバで直接ダウンロードする</title>
     <meta property="description" content="画像配信サーバ"" />
     <meta
       property="og:title"
-      content="videos.iamtakagi.net / URL を介してサーバで直接ダウンロードする"
+      content="images.iamtakagi.net / URL を介してサーバで直接ダウンロードする"
     />
     <meta property="og:description" content="画像配信サーバ"" />
     <style>
