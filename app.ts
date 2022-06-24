@@ -302,12 +302,11 @@ app.put("/url2image", async (req, res, next) => {
         )
       );
       response.data.pipe(writer);
-      console.log(response);
       res.status(200).send({imageUrl: `${SITE_BASEURL}/${destFileName}`, fileName: destFileName}).end();
     })
-    .catch((error: AxiosError) => {
-      console.log(error);
-      res.status(500).send({ error }).end();
+    .catch((err: AxiosError) => {
+      console.log(err);
+      res.status(500).send({ err }).end();
     });
 });
 
