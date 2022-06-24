@@ -451,7 +451,7 @@ const IndexPage = ({ files, pagination }: ImageProvider) => `
   <nav style="display:flex;flex-direction:column;">
     <a href="/upload">画像ファイルをアップロードする (管理者用)</a>
     <a href="/delete">画像ファイルを削除する (管理者用)</a>
-    <a href="/url2image">URL を介してサーバに直接ダウンロードする (管理者用)</a>
+    <a href="/url2image">URL を介してサーバで直接ダウンロードする (管理者用)</a>
   </nav>
 </header>
     <hr style="margin-top: 1.2rem; margin-bottom: 1.2rem;" />
@@ -662,7 +662,7 @@ const ImagePage = (
     <a href="/">インデックスに戻る</a>
     <a href="/upload">画像ファイルをアップロードする (管理者用)</a>
     <a href="/delete">画像ファイルを削除する (管理者用)</a>
-    <a href="/url2image">URL を介してサーバに直接ダウンロードする (管理者用)</a>
+    <a href="/url2image">URL を介してサーバで直接ダウンロードする (管理者用)</a>
   </nav>
 </header>
     <hr style="margin-top: 1.2rem; margin-bottom: 1.2rem;" />
@@ -879,7 +879,7 @@ const UploadPage = (files: string[]) => `
     <a href="/">インデックスに戻る</a>
     <a href="/upload">画像ファイルをアップロードする (管理者用)</a>
     <a href="/delete">画像ファイルを削除する (管理者用)</a>
-    <a href="/url2image">URL を介してサーバに直接ダウンロードする (管理者用)</a>
+    <a href="/url2image">URL を介してサーバで直接ダウンロードする (管理者用)</a>
   </nav>
 </header>
     <hr style="margin-top: 1.2rem; margin-bottom: 1.2rem" />
@@ -1152,7 +1152,7 @@ const DeletePage = ({ files, pagination }: ImageProvider) => `
     <a href="/">インデックスに戻る</a>
     <a href="/upload">画像ファイルをアップロードする (管理者用)</a>
     <a href="/delete">画像ファイルを削除する (管理者用)</a>
-    <a href="/url2image">URL を介してサーバに直接ダウンロードする (管理者用)</a>
+    <a href="/url2image">URL を介してサーバで直接ダウンロードする (管理者用)</a>
   </nav>
 </header>
     <hr style="margin-top: 1.2rem; margin-bottom: 1.2rem;" />
@@ -1413,13 +1413,13 @@ export const Url2ImagePage = (files: string[]) => `
         <a href="/">インデックスに戻る</a>
         <a href="/upload">画像ファイルをアップロードする (管理者用)</a>
         <a href="/delete">画像ファイルを削除する (管理者用)</a>
-        <a href="/url2image">URL を介してサーバに直接ダウンロードする (管理者用)</a>
+        <a href="/url2image">URL を介してサーバで直接ダウンロードする (管理者用)</a>
       </nav>
     </header>
     <hr style="margin-top: 1.2rem; margin-bottom: 1.2rem" />
     <main>
       <section>
-        <h2>URL を介してサーバに直接ダウンロードする (管理者用)</h2>
+        <h2>URL を介してサーバで直接ダウンロードする (管理者用)</h2>
         <form
           onsubmit="url2image(event)"
           style="display: flex; flex-direction: column"
