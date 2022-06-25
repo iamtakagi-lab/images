@@ -1,5 +1,18 @@
 # images
-画像配信サーバです
+
+## Features
+
+### Supporting Media Formats
+- PNG 
+- JPEG 
+- GIF
+- WebP
+- BMP
+- TIFF 
+- SVG
+
+### Upload Limit
+.env にて適宣設定
 
 ## Get Started
 ```console
@@ -49,20 +62,6 @@ $ yarn build
 ```console
 $ node app.js
 ```
-
-## Features
-
-### Supporting Media Formats
-- PNG 
-- JPEG 
-- GIF
-- WebP
-- BMP
-- TIFF 
-- SVG
-
-### Upload Limit
-.env にて適宣設定
 
 ## LICENSE
 MIT License.
