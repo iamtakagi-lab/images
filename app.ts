@@ -1170,12 +1170,12 @@ const DeletePage = ({ files, pagination }: ImageProvider) => `
         <span style="margin-top:1rem;display:inline-block;">
         ${
           pagination.prev
-            ? `<a href="${SITE_BASEURL}?page=${pagination.prev}" style="margin-right:.7rem;"><- 前のページ</a>`
+            ? `<a href="${SITE_BASEURL}/delete?page=${pagination.prev}" style="margin-right:.7rem;"><- 前のページ</a>`
             : ``
         } 
         ${
           pagination.next
-            ? `<a href="${SITE_BASEURL}?page=${pagination.next}">次のページ -></a>`
+            ? `<a href="${SITE_BASEURL}/delete?page=${pagination.next}">次のページ -></a>`
             : ``
         }
       </span>
@@ -1366,6 +1366,7 @@ export const Url2ImagePage = (files: string[]) => `
         event.preventDefault();
         const submitBtn = document.getElementById("submit_btn")
         submitBtn.disabled = true;
+        submitBtn.innerText = "ダウンロード中です...";
         const form = document.querySelector("form");
         const status = document.getElementById("status")
         status.innerText = "サーバ上で画像ファイルをダウンロードしています..."
@@ -1382,6 +1383,7 @@ export const Url2ImagePage = (files: string[]) => `
           status.innerText = "サーバ上での画像ダウンロードに失敗しました";
         }
         submitBtn.disabled = false;
+        submitBtn.innerText = "実行";
       }
 
       function showModal() {
