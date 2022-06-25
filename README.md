@@ -52,7 +52,7 @@ $ node app.js
 
 ## Features
 
-### 対応ファイル形式
+### Supporting Media Formats
 - PNG 
 - JPEG 
 - GIF
@@ -61,7 +61,7 @@ $ node app.js
 - TIFF 
 - SVG
 
-### アップロードサイズ
+### Upload Limit
 .env にて適宣設定
 
 ## LICENSE
