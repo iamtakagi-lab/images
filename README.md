@@ -12,14 +12,14 @@
 - SVG
 
 ### Upload Limit
-.env にて適宣設定
+See a `.env` and edit it.
 
 ## Get Started
 ```console
 $ docker-compose up -d
 ```
 
-### 構成例 (docker-compose.yml)
+### docker-compose.yml (example)
 ```yml
 version: '3.8'
 services:
@@ -41,7 +41,7 @@ services:
       - 3000:3000
 ```
 
-### 環境変数を設定 (.env)
+### .env
 ```env
 ADMIN_USER=hoge
 ADMIN_PASS=foo
