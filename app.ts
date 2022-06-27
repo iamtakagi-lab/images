@@ -75,7 +75,7 @@ app.get("/", (req, res, next) => {
 
   const files = readSyncImageFiles();
 
-  const index = page && typeof page === "string" ? parseInt(page) : 1;
+  const index = page && typeof page === "string" ? parseInt(page) : 1 as const;
 
   const paginated = paginate(files, PAGE_SIZE, index);
   const prevPaginated = paginate(files, PAGE_SIZE, index - 1);
@@ -193,7 +193,7 @@ app.get("/delete", (req, res, next) => {
 
   const files = readSyncImageFiles();
 
-  const index = page && typeof page === "string" ? parseInt(page) : 1;
+  const index = page && typeof page === "string" ? parseInt(page) : 1 as const;
 
   const paginated = paginate(files, PAGE_SIZE, index);
   const prevPaginated = paginate(files, PAGE_SIZE, index - 1);
