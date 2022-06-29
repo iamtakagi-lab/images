@@ -42,7 +42,7 @@ services:
       - default
     ports:
       - 3000:3000
-    restart: always
+    restart: unless-stopped
 ```
 
 ### .env
