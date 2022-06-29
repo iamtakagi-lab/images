@@ -1,4 +1,5 @@
 # images
+A Image Contents Server that people watch on Browser feat uploader and url2image with supports PNG / JPEG / GIF / WebP / BMP / TIFF / SVG
 
 ## Features
 
@@ -37,8 +38,11 @@ services:
       - TZ=Asia/Tokyo
       - LANG=ja_JP.UTF-8
       - PORT=3000
+    networks:
+      - default
     ports:
       - 3000:3000
+    restart: always
 ```
 
 ### .env
