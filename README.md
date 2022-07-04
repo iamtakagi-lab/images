@@ -17,7 +17,7 @@ See a `.env` and edit it.
 
 ## Get Started
 ```console
-$ docker-compose up -d
+docker-compose up -d
 ```
 
 ### docker-compose.yml (example)
@@ -54,17 +54,17 @@ SITE_BASEURL=https://foo.com
 
 ### Run Development Server
 ```console
-$ yarn dev
+yarn dev
 ```
 
-### Build with Webpack
+### Bundle by Webpack
 ```console
-$ yarn build
+yarn build
 ```
 
 ### Start as Production Mode
 ```console
-$ node app.js
+node app.js
 ```
 
 ## LICENSE
