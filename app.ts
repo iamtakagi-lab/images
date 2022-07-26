@@ -659,7 +659,6 @@ const ImagePage = (
   </section>
   <span>画像ファイル数: ${files.length}</span>
   <nav style="display:flex;flex-direction:column;">
-    <a href="/">インデックスに戻る</a>
     <a href="/upload">画像ファイルをアップロードする (管理者用)</a>
     <a href="/delete">画像ファイルを削除する (管理者用)</a>
     <a href="/url2image">URL を介してサーバで直接ダウンロードする (管理者用)</a>
