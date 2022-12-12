@@ -49,6 +49,7 @@ services:
 ```env
 ADMIN_USER=hoge
 ADMIN_PASS=foo
+UPLOAD_LIMIT_MB=10
 SITE_BASEURL=https://foo.com
 ```
 
